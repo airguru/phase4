@@ -104,6 +104,8 @@ public final class BDEWCompatibilityValidatorTest
                                           BDEWPMode.BDEW_PARTY_ID_TYPE_BDEW,
                                           "http://localhost:8080",
                                           IPModeIDProvider.DEFAULT_DYNAMIC,
+                                          BDEWPMode.SERVICE_TEST,
+                                          BDEWPMode.ACTION_TEST_SERVICE,
                                           true);
   }
 
@@ -500,7 +502,7 @@ public final class BDEWCompatibilityValidatorTest
   @Test
   public void testValidatePModeBusinessInfoWrongService ()
   {
-    final PModeLegBusinessInformation aBusinessInformation = BDEWPMode.generatePModeLegBusinessInformation ();
+    final PModeLegBusinessInformation aBusinessInformation = BDEWPMode.generatePModeLegBusinessInformation (BDEWPMode.SERVICE_TEST, BDEWPMode.ACTION_TEST_SERVICE);
     aBusinessInformation.setService ("http://test.example.org");
     aBusinessInformation.setAction (BDEWPMode.ACTION_DEFAULT);
 
@@ -518,7 +520,7 @@ public final class BDEWCompatibilityValidatorTest
   @Test
   public void testValidatePModeBusinessInfoWrongAction ()
   {
-    final PModeLegBusinessInformation aBusinessInformation = BDEWPMode.generatePModeLegBusinessInformation ();
+    final PModeLegBusinessInformation aBusinessInformation = BDEWPMode.generatePModeLegBusinessInformation (BDEWPMode.SERVICE_TEST, BDEWPMode.ACTION_TEST_SERVICE);
     aBusinessInformation.setService (BDEWPMode.SERVICE_TEST);
     aBusinessInformation.setAction ("http://test.example.org");
 
@@ -608,7 +610,7 @@ public final class BDEWCompatibilityValidatorTest
   @Test
   public void testValidatePModeCorrect ()
   {
-    final PModeLegBusinessInformation aBusinessInformation = BDEWPMode.generatePModeLegBusinessInformation ();
+    final PModeLegBusinessInformation aBusinessInformation = BDEWPMode.generatePModeLegBusinessInformation (BDEWPMode.SERVICE_TEST, BDEWPMode.ACTION_TEST_SERVICE);
     aBusinessInformation.setService (BDEWPMode.SERVICE_TEST);
     aBusinessInformation.setAction (BDEWPMode.ACTION_TEST_SERVICE);
 

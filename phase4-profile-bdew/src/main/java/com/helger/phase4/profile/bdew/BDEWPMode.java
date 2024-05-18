@@ -98,10 +98,8 @@ public final class BDEWPMode
   }
 
   @Nonnull
-  public static PModeLegBusinessInformation generatePModeLegBusinessInformation ()
+  public static PModeLegBusinessInformation generatePModeLegBusinessInformation (String sService, String sAction)
   {
-    final String sService = null;
-    final String sAction = CAS4.DEFAULT_ACTION_URL;
     final Long nPayloadProfileMaxKB = null;
     final String sMPCID = CAS4.DEFAULT_MPC_ID;
     return PModeLegBusinessInformation.create (sService, sAction, nPayloadProfileMaxKB, sMPCID);
@@ -144,10 +142,10 @@ public final class BDEWPMode
   }
 
   @Nonnull
-  public static PModeLeg generatePModeLeg (@Nullable final String sResponderAddress)
+  public static PModeLeg generatePModeLeg (@Nullable final String sResponderAddress, String sService, String sAction)
   {
     return new PModeLeg (generatePModeLegProtocol (sResponderAddress),
-                         generatePModeLegBusinessInformation (),
+                         generatePModeLegBusinessInformation (sService, sAction),
                          generatePModeLegErrorHandling (),
                          null,
                          generatePModeLegSecurity ());
@@ -201,18 +199,20 @@ public final class BDEWPMode
                                        @Nonnull @Nonempty final String sResponderType,
                                        @Nullable final String sResponderAddress,
                                        @Nonnull final IPModeIDProvider aPModeIDProvider,
+                                       @Nonnull @Nonempty final String sService,
+                                       @Nonnull @Nonempty final String sAction,
                                        final boolean bPersist)
   {
     final PModeParty aInitiator = new PModeParty (sInitiatorType, sInitiatorID, CAS4.DEFAULT_INITIATOR_URL, null, null);
     final PModeParty aResponder = new PModeParty (sResponderType, sResponderID, CAS4.DEFAULT_RESPONDER_URL, null, null);
-
+    
     final PMode aPMode = new PMode (aPModeIDProvider.getPModeID (aInitiator, aResponder),
                                     aInitiator,
                                     aResponder,
                                     DEFAULT_AGREEMENT_ID,
                                     EMEP.ONE_WAY,
                                     EMEPBinding.PUSH,
-                                    generatePModeLeg (sResponderAddress),
+                                    generatePModeLeg (sResponderAddress, sService, sAction),
                                     null,
                                     generatePModePayloadSevice (),
                                     generatePModeReceptionAwareness ());

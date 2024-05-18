@@ -44,6 +44,8 @@ public final class BDEWPModeTest
                                                     BDEWPMode.BDEW_PARTY_ID_TYPE_BDEW,
                                                     "https://test.example.org",
                                                     IPModeIDProvider.DEFAULT_DYNAMIC,
+                                                    BDEWPMode.SERVICE_TEST,
+                                                    BDEWPMode.ACTION_TEST_SERVICE,
                                                     false);
     assertNotNull (aPMode);
   }

@@ -63,6 +63,8 @@ public final class AS4BDEWProfileRegistarSPI implements IAS4ProfileRegistrarSPI
                                                                                                    _getTypeFromID (r),
                                                                                                    a,
                                                                                                    PMODE_ID_PROVIDER,
+                                                                                                   BDEWPMode.SERVICE_TEST,
+                                                                                                   BDEWPMode.ACTION_TEST_SERVICE,
                                                                                                    true);
 
     if (LOGGER.isDebugEnabled ())

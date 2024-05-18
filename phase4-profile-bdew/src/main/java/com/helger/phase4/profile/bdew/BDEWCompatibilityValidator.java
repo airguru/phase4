@@ -104,7 +104,7 @@ public class BDEWCompatibilityValidator implements IAS4ProfileValidator
     {
       // PROTOCOL Address only https allowed
       final String sAddressProtocol = aLegProtocol.getAddressProtocol ();
-
+      /*
       if (StringHelper.hasText (sAddressProtocol))
       {
         if (sAddressProtocol.equalsIgnoreCase ("https"))
@@ -122,7 +122,7 @@ public class BDEWCompatibilityValidator implements IAS4ProfileValidator
         // Empty address protocol
         if (false)
           aErrorList.add (_createError (sFieldPrefix + "AddressProtocol is missing"));
-      }
+      }*/
 
       final PModeLegBusinessInformation aBusinessInfo = aPModeLeg.getBusinessInfo ();
       if (aBusinessInfo == null)
