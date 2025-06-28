@@ -18,6 +18,7 @@ package com.helger.phase4.servlet;
 
 import java.security.cert.X509Certificate;
 import java.util.function.Supplier;
+import java.util.function.Function;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -92,8 +93,8 @@ public class AS4XServletHandler implements IXServletSimpleHandler
 
   private static final Logger LOGGER = LoggerFactory.getLogger (AS4XServletHandler.class);
 
-  private Supplier <? extends IAS4CryptoFactory> m_aCryptoFactorySignSupplier;
-  private Supplier <? extends IAS4CryptoFactory> m_aCryptoFactoryCryptSupplier;
+  private Function <IRequestWebScopeWithoutResponse, ? extends IAS4CryptoFactory> m_aCryptoFactorySignProvider;
+  private Function <IRequestWebScopeWithoutResponse, ? extends IAS4CryptoFactory> m_aCryptoFactoryCryptProvider;
   private IPModeResolver m_aPModeResolver;
   private IAS4IncomingAttachmentFactory m_aIAF;
   private IAS4IncomingSecurityConfiguration m_aISC = AS4IncomingSecurityConfiguration.createDefaultInstance ();
@@ -144,12 +145,12 @@ public class AS4XServletHandler implements IXServletSimpleHandler
    *         <code>null</code>.
    * @since 0.9.15
    */
-  @Nonnull
+  /*@Nonnull
   @Deprecated (forRemoval = true, since = "2.2.0")
   public final Supplier <? extends IAS4CryptoFactory> getCryptoFactorySupplier ()
   {
     return getCryptoFactorySignSupplier ();
-  }
+  }*/
 
   /**
    * @return The supplier for the {@link IAS4CryptoFactory} for signing. May not
@@ -158,21 +159,21 @@ public class AS4XServletHandler implements IXServletSimpleHandler
    * @since 2.2.0
    */
   @Nonnull
-  public final Supplier <? extends IAS4CryptoFactory> getCryptoFactorySignSupplier ()
+  public final Function <IRequestWebScopeWithoutResponse, ? extends IAS4CryptoFactory> getCryptoFactorySignProvider ()
   {
-    return m_aCryptoFactorySignSupplier;
+    return m_aCryptoFactorySignProvider;
   }
 
   /**
    * @return The supplier for the {@link IAS4CryptoFactory} for crypting. May
    *         not be <code>null</code>.
-   * @see #getCryptoFactorySignSupplier()
+   * @see #getCryptoFactorySignProvider()
    * @since 2.2.0
    */
   @Nonnull
-  public final Supplier <? extends IAS4CryptoFactory> getCryptoFactoryCryptSupplier ()
+  public final Function <IRequestWebScopeWithoutResponse, ? extends IAS4CryptoFactory> getCryptoFactoryCryptProvider ()
   {
-    return m_aCryptoFactoryCryptSupplier;
+    return m_aCryptoFactoryCryptProvider;
   }
 
   /**
@@ -192,6 +193,14 @@ public class AS4XServletHandler implements IXServletSimpleHandler
     return setCryptoFactorySignSupplier (aCryptoFactorySupplier).setCryptoFactoryCryptSupplier (aCryptoFactorySupplier);
   }
 
+  // Provider version
+  @Nonnull
+  public final AS4XServletHandler setCryptoFactoryProvider (@Nonnull final Function <IRequestWebScopeWithoutResponse, ? extends IAS4CryptoFactory> aCryptoFactoryProvider)
+  {
+    ValueEnforcer.notNull (aCryptoFactoryProvider, "CryptoFactoryProvider");
+    return setCryptoFactorySignProvider (aCryptoFactoryProvider).setCryptoFactoryCryptProvider (aCryptoFactoryProvider);
+  }
+
   /**
    * @param aCryptoFactorySignSupplier
    *        Crypto factory supplier for signing. May not be <code>null</code>.
@@ -203,7 +212,16 @@ public class AS4XServletHandler implements IXServletSimpleHandler
   public final AS4XServletHandler setCryptoFactorySignSupplier (@Nonnull final Supplier <? extends IAS4CryptoFactory> aCryptoFactorySignSupplier)
   {
     ValueEnforcer.notNull (aCryptoFactorySignSupplier, "CryptoFactorySignSupplier");
-    m_aCryptoFactorySignSupplier = aCryptoFactorySignSupplier;
+    m_aCryptoFactorySignProvider = (requestData) -> aCryptoFactorySignSupplier.get();
+    return this;
+  }
+
+  // Provider version
+  @Nonnull
+  public final AS4XServletHandler setCryptoFactorySignProvider (@Nonnull final Function <IRequestWebScopeWithoutResponse, ? extends IAS4CryptoFactory> aCryptoFactorySignProvider)
+  {
+    ValueEnforcer.notNull (aCryptoFactorySignProvider, "CryptoFactorySignProvider");
+    m_aCryptoFactorySignProvider = aCryptoFactorySignProvider;
     return this;
   }
 
@@ -218,7 +236,16 @@ public class AS4XServletHandler implements IXServletSimpleHandler
   public final AS4XServletHandler setCryptoFactoryCryptSupplier (@Nonnull final Supplier <? extends IAS4CryptoFactory> aCryptoFactoryCryptSupplier)
   {
     ValueEnforcer.notNull (aCryptoFactoryCryptSupplier, "CryptoFactoryCryptSupplier");
-    m_aCryptoFactoryCryptSupplier = aCryptoFactoryCryptSupplier;
+    m_aCryptoFactoryCryptProvider = (requestData) -> aCryptoFactoryCryptSupplier.get ();
+    return this;
+  }
+
+  // Provider version
+  @Nonnull
+  public final AS4XServletHandler setCryptoFactoryCryptProvider (@Nonnull final Function <IRequestWebScopeWithoutResponse, ? extends IAS4CryptoFactory> aCryptoFactoryCryptProvider)
+  {
+    ValueEnforcer.notNull (aCryptoFactoryCryptProvider, "CryptoFactoryCryptProvider");
+    m_aCryptoFactoryCryptProvider = aCryptoFactoryCryptProvider;
     return this;
   }
 
@@ -463,11 +490,11 @@ public class AS4XServletHandler implements IXServletSimpleHandler
                              @Nonnull final UnifiedResponse aUnifiedResponse) throws Exception
   {
     // Resolved once per request
-    final IAS4CryptoFactory aCryptoFactorySign = m_aCryptoFactorySignSupplier.get ();
+    final IAS4CryptoFactory aCryptoFactorySign = m_aCryptoFactorySignProvider.apply(aRequestScope);
     if (aCryptoFactorySign == null)
       throw new IllegalStateException ("Failed to get an AS4 CryptoFactory for signing");
 
-    final IAS4CryptoFactory aCryptoFactoryCrypt = m_aCryptoFactoryCryptSupplier.get ();
+    final IAS4CryptoFactory aCryptoFactoryCrypt = m_aCryptoFactoryCryptProvider.apply(aRequestScope);
     if (aCryptoFactoryCrypt == null)
       throw new IllegalStateException ("Failed to get an AS4 CryptoFactory for crypting");
 
